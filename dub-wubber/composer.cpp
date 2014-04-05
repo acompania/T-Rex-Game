@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
-#include "composer.h"
+#include "dub_wubber.h"
 
 #define SAMPLE_RATE 44100
 #define PI 3.14159265359f
@@ -168,11 +168,13 @@ static Note randCloseNote(Note lastNote) {
    return n;
 }
 
-void setRootFreq(float freq) {
-   int upperNdx = 0;
-   while (freq > frequencies[++upperNdx]);
-   float ave = (frequencies[upperNdx] + frequencies[upperNdx-1]) / 2.0f;
-   rootPitch = freq < ave ? upperNdx : upperNdx - 1;
+void setBaseNote(int base) {
+   if (base < 0)
+      rootPitch = frequencies[0];
+   else if (base > 127)
+      rootPitch = frequencies[127];
+   else
+      rootPitch = frequencies[base];
 }
 
 static void setEnvelope(Envelope * env, float attX, float attY, float susX, float susY, float tapX) {
@@ -256,16 +258,6 @@ static float computeAngle(Note note) {
    return 2.0 * PI * note.offset * frequencies[note.pitch] / SAMPLE_RATE;
 }
 
-void increaseTempo() {
-   tempo++;
-   printf("Tempo = %d\n", tempo);
-}
-
-void decreaseTempo() {
-   tempo--;
-   printf("Tempo = %d\n", tempo);
-}
-
 void nextMode() {
    if (modeNum == 0) {
       mode = dorian;
@@ -293,56 +285,6 @@ void nextMode() {
    modeNum = (modeNum + 1) % MODES;
 }
 
-void decreaseLFORate() {
-   lfoRate -= 0.1;
-   if (lfoRate < 0)
-      lfoRate = 0;
-   printf("LFO Rate = %f\n", lfoRate);
-}
-
-void increaseLFORate() {
-   lfoRate += 0.1;
-   printf("LFO Rate = %f\n", lfoRate);
-}
-
-void decreaseLFOAmp() {
-   lfoAmp -= 0.1;
-   if (lfoAmp < 0)
-      lfoAmp = 0;
-   printf("LFO Amp = %f\n", lfoAmp);
-}
-
-void increaseLFOAmp() {
-   lfoAmp += 0.1;
-   printf("LFO Amp = %f\n", lfoAmp);
-}
-
-void decreaseFlangeDepth() {
-   flangeDepth -= 1;
-   if (flangeDepth < 0)
-      flangeDepth = 0;
-   printf("Flange Depth = %d\n", flangeDepth);
-}
-
-void increaseFlangeDepth() {
-   flangeDepth += 1;
-   if (flangeDepth >= FLANGE_BUFF_SIZE / 2)
-      flangeDepth = FLANGE_BUFF_SIZE / 2;
-   printf("Flange Depth = %d\n", flangeDepth);
-}
-
-void decreaseFlangeRate() {
-   flangeRate -= 0.01;
-   if (flangeRate < 0)
-      flangeRate = 0;
-   printf("Flange Rate = %f\n", flangeRate);
-}
-
-void increaseFlangeRate() {
-   flangeRate += 0.01;
-   printf("Flange Rate = %f\n", flangeRate);
-}
-
 // gets the sample that was played "backCount" samples ago
 static float getSample(float backCount) {
    if (backCount > FLANGE_BUFF_SIZE) {
@@ -364,6 +306,39 @@ static float getSample(float backCount) {
       highHeight = flangeBuff[(int)midNdx + 1];
    float highWeight = midNdx - (int)midNdx;
    return lowHeight * (1.0f - highWeight) + highHeight * highWeight;
+}
+
+void setFreqLFORate(float rate) {
+   lfoRate = rate;
+   if (lfoRate < 0)
+      lfoRate = 0;
+   printf("Freq LFO Rate = %f\n", lfoRate);
+
+}
+
+void setFreqLFOAmp(float amp) {
+   lfoAmp = amp;
+   if (lfoAmp < 0)
+      lfoAmp = 0;
+   printf("Freq LFO Amp = %f\n", lfoAmp);
+}
+
+void setTempo(int tem) {
+   tempo = tem;
+   printf("Tempo = %d\n", tempo);
+}
+
+void setFlangeDepth(int depth) {
+   flangeDepth = depth;
+   if (flangeDepth < 0)
+      flangeDepth = 0;
+   printf("Flange Depth = %d\n", flangeDepth);
+}
+void setFlangeRate(float rate) {
+   flangeRate = rate;
+   if (flangeRate < 0)
+      flangeRate = 0;
+   printf("Flange Rate = %f\n", flangeRate);
 }
 
 Sample getNoteAmp() {

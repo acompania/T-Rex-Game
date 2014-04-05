@@ -1,10 +1,11 @@
 EXECUTABLE = dub-wubber
-FRAMEWORKS = -framework CoreAudio -framework AudioToolbox -framework AudioUnit -framework CoreServices -framework Carbon -framework OpenGL -framework GLUT
+FRAMEWORKS = -framework CoreAudio -framework AudioToolbox -framework AudioUnit -framework CoreServices
+OBJS = wubber_test.o dub_wubber.o composer.o
 FLAGS = -g -Wno-deprecated
-OBJS = brisk.o briskhelper.o GLSL_helper.o composer.o
+LIBS = libportaudio.a
 
 all: $(OBJS)
-	g++ $(FLAGS) -o $(EXECUTABLE) $(OBJS) libportaudio.a $(FRAMEWORKS) -lfftw3f -lm
+	g++ $(FLAGS) -o $(EXECUTABLE) $(OBJS) $(LIBS) $(FRAMEWORKS)
 
 %.o: %.cpp
 	gcc -c $(FLAGS) -o $@ $<
