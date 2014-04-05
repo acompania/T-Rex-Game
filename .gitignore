@@ -1,0 +1,11 @@
+T-Rex
+
+# Mac garbage
+.*
+
+# c/c++ garbage 
+*.o
+
+# emacs garbage
+*~
+
