@@ -1,25 +1,24 @@
 # Builds a T-Rex executable
 
-EXECUTABLE = ../T-Rex
+
 OBJS = Client.o Utils.o GLSL_helper.o MStackHelp.o TextureLoader.o mesh.o
-# Frameworks are a Mac thing
-FRAMEWORKS = -framework ApplicationServices -framework GLUT -framework OpenGL 
 FLAGS = -g -Wno-deprecated -DGL_GLEXT_PROTOTYPES
+EXECUTABLE = T-Rex
 
 UNAME = $(shell uname)
 ifeq ($(UNAME), Linux)
 LIBS =  -lGL -lGLU -lglut -DGL_GLEXT_PROTOTYPES
+else
+ifeq ($(UNAME), Darwin)
+FRAMEWORKS = -framework ApplicationServices -framework GLUT -framework OpenGL 
+endif
 endif
 
 
 all: client
 
 client: $(OBJS)
-ifeq ($(UNAME), Darwin)
-	g++ -o $(EXECUTABLE) $(OBJS) $(FLAGS) $(FRAMEWORKS)
-else ifeq ($(UNAME), Linux)
-	g++ -o $(EXECUTABLE) $(OBJS) $(FLAGS) $(LIBS)
-endif
+	g++ -o $(EXECUTABLE) $(OBJS) $(FLAGS) $(LIBS) $(FRAMEWORKS)
 
 Client.o: Client.cpp 
 	g++ -c -o $@ $< $(FLAGS)

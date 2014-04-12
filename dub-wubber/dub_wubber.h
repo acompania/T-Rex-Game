@@ -1,6 +1,7 @@
 #ifndef __BRISK_HELPER_H__
 #define __BRISK_HELPER_H__
 
+#include <pthread.h>
 #include "portaudio.h"
 
 #define SAMPLE_RATE 44100
