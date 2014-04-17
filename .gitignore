@@ -9,3 +9,6 @@ T-Rex
 # emacs garbage
 *~
 
+# all the executable stuff
+bin
+
