@@ -23,7 +23,19 @@
 #include "glm/gtc/type_ptr.hpp" //value_ptr
 #include "MStackHelp.h"
 #include <chrono>
-#include "glglobals.h"
+GLint h_aPosition;
+GLint h_aNormal;
+GLint h_uModelMatrix;
+GLint h_uViewMatrix;
+GLint h_uProjMatrix;
+GLint h_uLightPos;
+GLint h_uLightColor;
+GLint h_uMatAmb, h_uMatDif, h_uMatSpec, h_uMatShine;
+GLint h_uTexUnit, h_aTexCoord;
+
+GLint h_uShadeType;
+GLint h_uCamPos;
+GLint h_uSun;
 
 int shader;
 
@@ -167,6 +179,7 @@ void loadModel(Model* Model, string name) {
 
 void createGround() {
    ground.base = &groundModel;
+
    ground.position = glm::vec3(0, 0, 0);
    ground.scale = 100;
    ground.direction = glm::vec3(1, 0, 0);
@@ -202,17 +215,12 @@ void showText() {
 
 void InitGeom() {
    loadModel(&groundModel, "resources/ground.obj");
-   groundModel.pointToParent = glm::vec3(0, 0, 0);
    loadModel(&flashlightModel, "resources/flashlight.obj");
-   flashlightModel.pointToParent = glm::vec3(0, 0, 0);
    loadModel(&bunnyModel, "resources/bunny500.m");
-   bunnyModel.pointToParent = glm::vec3(0, 0, 0);
    
    createGround();
    createFlashlight();
    showText();
-
-   //loadModel(&treeModel, "Models/QuercusPlant/EU55_3.obj");
 }
 
 // ======================================================================== //
@@ -363,25 +371,11 @@ int InstallShader(const GLchar *vShaderName, const GLchar *fShaderName) {
 
 void drawObject(Object * obj, Object * parent, int index) {
    Stack.pushMatrix();
-
-   // Transforms
-   glm::vec3 toParent = obj->base->pointToParent;
-   if (parent) {
-      glm::vec3 toChild = parent->pointsToChildren[index];
-      Stack.translate(glm::vec3(0.5*toChild.x, 0.5*toChild.y, 0.5*toChild.z));
-   }
    
-   if (!parent)
-      Stack.translate(obj->position);
    Stack.rotateWith(dirToMat(obj->direction));
    Stack.scale(obj->scale, obj->scale, obj->scale);
-   Stack.translate(glm::vec3(-0.5*toParent.x, -0.5*toParent.y, -0.5*toParent.z));
-
-   // Setting up to draw
-   int childCount = obj->children.size();
-   for (int i=0; i<childCount; i++)  // recursively draw all subcomponents
-      drawObject(&(obj->children)[i], obj, i);
-
+   Stack.translate(obj->position);
+   
    SetModel();
    SetMaterial(obj->material);
    
@@ -389,7 +383,7 @@ void drawObject(Object * obj, Object * parent, int index) {
    safe_glEnableVertexAttribArray(h_aPosition);
    glBindBuffer(GL_ARRAY_BUFFER, obj->base->triBuffObj);
    safe_glVertexAttribPointer(h_aPosition, 4, GL_FLOAT, GL_FALSE, 0, 0);
-   
+
    safe_glEnableVertexAttribArray(h_aNormal);
    glBindBuffer(GL_ARRAY_BUFFER, obj->base->normalBuffObj);
    safe_glVertexAttribPointer(h_aNormal, 3, GL_FLOAT, GL_FALSE, 0, 0);
@@ -404,7 +398,7 @@ void drawObject(Object * obj, Object * parent, int index) {
 int score = 0;
 int shitty_fps = 30;
 
-void Draw (void)
+void Draw(void)
 {
    glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -424,11 +418,8 @@ void Draw (void)
 
    // Draw Everything
    drawObject(&ground, NULL, 0);
-   
-   for (int i=0; i < bunnies.size(); i++) {
+   for (int i=0; i < bunnies.size(); i++)
       drawObject(&bunnies[i], NULL, 0);
-   }
-   
    drawObject(&flashlight, NULL, 0);
 
    //clean up 
@@ -603,32 +594,6 @@ void strafeRight() {
    flashlight.position += vec3(.4*U.x, 0, .4*U.z);
 }
 
-//the keyboard callback to change the values to the transforms
-void keyboard(unsigned char key, int x, int y ) {
-   //printf("%c pressed\n", key);
-   switch( key ) {
-      case 'w':
-         moveForward();
-         break;
-      case 's':
-         moveBackward();
-         break;
-      case 'a':
-         strafeLeft();
-         break;
-      case 'd':
-         strafeRight();
-         break;
-      case 'n':
-         g_shadeType = g_shadeType == NORMAL ? PHONG : NORMAL;
-         break;
-      case 'q': case 'Q' :
-         exit( EXIT_SUCCESS );
-         break;
-   }
-   glutPostRedisplay();
-}
-
 void detectCollisions() {
    for (int i = 0; i < bunnies.size(); i++) {
       if (!bunnies[i].touched) {
@@ -706,20 +671,39 @@ static void error_callback(int error, const char* description) {
     fputs(description, stderr);
 }
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
-   printf("%d\n", key);
-    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-        glfwSetWindowShouldClose(window, GL_TRUE);
+   
+   if (action == GLFW_PRESS) {
+      printf("%d pressed\n", key);
+      switch( key ) {
+         case 'w':
+            moveForward();
+            break;
+         case 's':
+            moveBackward();
+            break;
+         case 'a':
+            strafeLeft();
+            break;
+         case 'd':
+            strafeRight();
+            break;
+         case 'n':
+            g_shadeType = g_shadeType == NORMAL ? PHONG : NORMAL;
+            break;
+         case GLFW_KEY_ESCAPE:
+            glfwSetWindowShouldClose(window, GL_TRUE);
+            break;
+      }
+   }
 }
 
 int main(void)
 {
    GLFWwindow* window;
-   
-   //InitGeom();
    glfwSetErrorCallback(error_callback);
 
-
    // Initialization code-----
+   InitGeom();
    glClearColor(0.5, 0.5, 0, 1.0f);                       
    glEnable(GL_DEPTH_TEST);   // Enable Depth Testing   GLFWwindow* window;
       /* some matrix stack init */
@@ -739,27 +723,26 @@ int main(void)
    }
    glfwMakeContextCurrent(window);
 
-   //test the openGL version
+   // Init the shader ---------
    getGLversion();
-   //install the shader
    if (!InstallShader(textFileRead((char *)"shaders/vert.glsl"), 
     textFileRead((char *)"shaders/frag.glsl"))) {
       printf("Error installing shader!\n");
       return 0;
    }
-   
    glUseProgram(shader);
+   //--------------------------
    
-
+   // window events -----------
    glfwSetKeyCallback(window, key_callback);
-
-   mouse(1, GLUT_DOWN, 0.1, 0.1);
+   glfw
+   // -------------------------
 
    // GLFW MAIN LOOP
    while (!glfwWindowShouldClose(window)) {
-      printf("a\n");
+
         Draw();
-      printf("b\n");
+
         //glEnd();
         glfwSwapBuffers(window);
         glfwPollEvents();
