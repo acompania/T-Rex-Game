@@ -1,7 +1,7 @@
 CC=g++
 EXECUTABLE=bin/main.out
 OBJS=bin/Main.o bin/CMeshLoaderSimple.o bin/GLSL_helper.o bin/MStackHelp.o
-CFLAGS=-std=gnu++0x -g -DGL_GLEXT_PROTOTYPES -Wno-narrowing
+CFLAGS= -std=c++11 -g -DGL_GLEXT_PROTOTYPES
 INCS=lib
 
 UNAME=$(shell uname)

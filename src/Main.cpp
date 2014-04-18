@@ -233,7 +233,7 @@ void SetMaterial(int i) {
    glUseProgram(ShadeProg);
    switch (i) {
       case 0:  // redish (big tree)
-        safe_glUniform3f(h_uMatAmb, 0.0,0.0,0.0);  
+        safe_glUniform3f(h_uMatAmb, 0.2,0.0,0.0);  
         safe_glUniform3f(h_uMatDif, 0.25, 0.2,  0.1);  
         safe_glUniform3f(h_uMatSpec,  1.0,  0.813,  0.7); 
         safe_glUniform1f(h_uMatShine, 150.0); 
@@ -251,13 +251,13 @@ void SetMaterial(int i) {
         safe_glUniform1f(h_uMatShine, 50.0);
         break;
       case  3:  // brown (skinny tree)
-        safe_glUniform3f(h_uMatAmb, 0.0,0.0,0.0); 
+        safe_glUniform3f(h_uMatAmb, 0.2,0.0,0.0); 
         safe_glUniform3f(h_uMatDif, 0.25,  0.25, 0.15); 
         safe_glUniform3f(h_uMatSpec,  .9, 1.0, 0.6); 
         safe_glUniform1f(h_uMatShine, 120.0); 
         break;  
       case  4:  // dull light green (ground)
-        safe_glUniform3f(h_uMatAmb, 0.0,0.0,0.0);  
+        safe_glUniform3f(h_uMatAmb, 0.2,0.0,0.0);  
         safe_glUniform3f(h_uMatDif, 0.45,  0.55,  0.4); 
         safe_glUniform3f(h_uMatSpec,  0.05,  0.2,  0.0); 
         safe_glUniform1f(h_uMatShine, 4.0); 
@@ -735,7 +735,6 @@ int main(void)
    
    // window events -----------
    glfwSetKeyCallback(window, key_callback);
-   glfw
    // -------------------------
 
    // GLFW MAIN LOOP
