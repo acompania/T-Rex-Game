@@ -2,7 +2,6 @@
 
 #ifdef __unix__
 // -holy crap!! These are all for glfw...
-#include <GL/glut.h>
 #include <GLFW/glfw3.h>
 #include <X11/X.h>
 #include <X11/Xlib.h>
@@ -468,10 +467,10 @@ float p2w_y(int p_y) {
 }
 
 void mouse(int button, int state, int x, int y) {
-   if (state == GLUT_DOWN) {
-      g_startx = x;
-      g_starty = g_height-y-1;
-   }
+  // if (state == GLUT_DOWN) {
+  //    g_startx = x;
+  //    g_starty = g_height-y-1;
+  // }
 }
 
 glm::mat4 matrixToAlign(glm::vec3 from, glm::vec3 to) {
@@ -531,19 +530,6 @@ void directCamera(int x, int y) {
 
    g_startx = g_endx;
    g_starty = g_endy;
-   
-#ifdef __APPLE__
-   if (fabs(g_width/2 - x) > g_width/4 || fabs(g_height/2 - y) > g_height/4) {
-      int winX = glutGet(GLUT_WINDOW_X);
-      int winY = glutGet(GLUT_WINDOW_Y);
-      CGPoint warpPoint = CGPointMake(winX + g_width/2, winY + g_height/2);
-      CGWarpMouseCursorPosition(warpPoint);
-      CGAssociateMouseAndMouseCursorPosition(true);
-
-      g_startx = g_width/2;
-      g_starty = g_height/2;
-   }
-#endif
 }
 
 void mouseMove(int x, int y) {
@@ -660,8 +646,6 @@ void tick(int stupid) {
    detectCollisions();
 
    lastTime = curTime;
-   glutPostRedisplay();
-   glutTimerFunc(20, tick, 0);
 }
 
 //-=--=-=-=-=-=-=-=-==--=-=-=-=-=-==-=-=-=-=-=--==--=-=-==--=-=--=-=
@@ -737,6 +721,7 @@ int main(void)
    glfwSetKeyCallback(window, key_callback);
    // -------------------------
 
+   directCamera(3, 5);
    // GLFW MAIN LOOP
    while (!glfwWindowShouldClose(window)) {
 
