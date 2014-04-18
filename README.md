@@ -1,5 +1,6 @@
 First update apt-get, so run the following:
-sudo apt-get update && upgrade
+sudo apt-get update
+sudo apt-get upgrade
 
 Install via apt-get:
 sudo apt-get install libxcursor-dev g++ xorg-dev libglu1-mesa-dev libglfw-dev doxygen doxygen-gui libftgl-dev freetyped2
