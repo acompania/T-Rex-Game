@@ -12,7 +12,7 @@
 #include <X11/Xcursor/Xcursor.h>
 #endif
 
-//#include "TextEntity.h"
+#include "TextEntity.h"
 #include "CMeshLoaderSimple.h"
 #include <stdlib.h>
 #include <stdio.h>
@@ -206,10 +206,12 @@ void createBunny() {
    bunnies.push_back(bunny);
 }
 
-/*Text* txt = new Text();
+Text* txt = new Text();
 void showText() {
   txt->setText("Hello World!");
-}*/
+  // txt->pos.x = 10;
+  // txt->pos.y = 50;
+}
 
 void InitGeom() {
    loadModel(&groundModel, "resources/ground.obj");
@@ -218,7 +220,7 @@ void InitGeom() {
    
    createGround();
    createFlashlight();
-   //showText();
+   showText();
 }
 
 // ======================================================================== //
@@ -427,7 +429,7 @@ void Draw(void)
    //disable the shader
    glUseProgram(0);  
 
-   //txt->draw(score, bunnies.size(), shitty_fps);
+   txt->draw(score, bunnies.size(), shitty_fps);
 
    //glutSwapBuffers();
 }
