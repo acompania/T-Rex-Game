@@ -22,6 +22,7 @@
 #include "glm/gtc/type_ptr.hpp" //value_ptr
 #include "MStackHelp.h"
 #include <chrono>
+
 GLint h_aPosition;
 GLint h_aNormal;
 GLint h_uModelMatrix;
@@ -332,7 +333,6 @@ int InstallShader(const GLchar *vShaderName, const GLchar *fShaderName) {
    shader = glCreateProgram();
    glAttachShader(shader, VS);
    glAttachShader(shader, FS);
-   
    glLinkProgram(shader);
    /* check shader status requires helper functions */
    printOpenGLError();
@@ -429,8 +429,6 @@ void Draw(void)
    glUseProgram(0);  
 
    txt->draw(score, bunnies.size(), shitty_fps);
-
-   //glutSwapBuffers();
 }
 
 
@@ -464,13 +462,6 @@ float p2w_x(int p_x) {
 
 float p2w_y(int p_y) {
   return( ( (float)p_y - ((g_height-1.0)/2.0) )*2.0/g_height);
-}
-
-void mouse(int button, int state, int x, int y) {
-  // if (state == GLUT_DOWN) {
-  //    g_startx = x;
-  //    g_starty = g_height-y-1;
-  // }
 }
 
 glm::mat4 matrixToAlign(glm::vec3 from, glm::vec3 to) {
@@ -526,8 +517,9 @@ void directCamera(int x, int y) {
       flashlight.position = eye + -W + U - V;
       flashlight.direction = glm::normalize(gaze);
       lightDirection = -W;
+   printf("gaze %f %f %f\n", gaze.x, gaze.y, gaze.z);
    }
-   printf("direction %f %f %f\n", eye.x, eye.y, eye.z);
+
    g_startx = g_endx;
    g_starty = g_endy;
 }
@@ -686,7 +678,6 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 
 static void cursor_pos_callback(GLFWwindow* window, double x, double y) {
    directCamera(x,y);
-   printf("mouse moved to %f %f\n", x, y);
 }
 
 int main(void)
@@ -747,8 +738,8 @@ int main(void)
 
    // GLFW MAIN LOOP
    while (!glfwWindowShouldClose(window)) {
-   
-        tick();
+        glClearColor(0.5, 0.5, 0, 1.0f);  
+        //tick();
         Draw();
         
         //glEnd();
