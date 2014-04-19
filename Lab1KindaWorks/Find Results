@@ -1,0 +1,17 @@
+Searching 15 files for "math"
+
+/Users/Oliver/Documents/Lab1/CMesh.cpp:
+    5  #include <sstream>
+    6  #include <vector>
+    7: #include <cmath>
+    8  #include <iomanip>
+    9  #include <string>
+
+/Users/Oliver/Documents/Lab1/CMeshLoaderSimple.h:
+    7  #include <sstream>
+    8  #include <vector>
+    9: #include <cmath>
+   10  #include <iomanip>
+   11  #include <streambuf>
+
+2 matches across 2 files

@@ -1,0 +1,18 @@
+CC=g++
+CFLAGS=-g -DGL_GLEXT_PROTOTYPES -lGL -lGLU -lglfw -Wno-deprecated
+LDFLAGS=-DGL_GLEXT_PROTOTYPES -lGL -lGLU -lglfw -Wno-deprecated
+SOURCES=Lab1.cpp GLSL_helper.cpp CMeshLoaderSimple.cpp GameObject.cpp mesh.cpp
+OBJECTS=$(SOURCES:.c=.o)
+EXECUTABLE=a.out
+
+all: $(SOURCES) $(EXECUTABLE)
+
+$(EXECUTABLE): $(OBJECTS)
+	$(CC) -g $(LDFLAGS) $(OBJECTS) -o $@
+
+&.cpp&.o:
+	$(CC) $(CFLAGS) $< -o $@
+
+clean:
+	-rm -rf *.o $(EXECUTABLE)
+
