@@ -99,6 +99,7 @@ vec3 uBar;
 vec3 vBar;
 static float g_scale = 1;
 
+int startx, starty, endx, endy;
 int g_mat_id =1;
 int shadeMode=1;
 
@@ -816,8 +817,21 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
      vBar = cross(wBar,uBar);
   }
 }
+
+//Pixel to world coordinates
+float p2w_x(int p_x) {
+  float x_i = ( (float)p_x - ((g_width-1.0)/2.0) )*2.0/g_width;
+  return(((float)g_width/(float)g_height)*x_i);
+}
+
+float p2w_y(int p_y) {
+  return( ( (float)p_y - ((g_height-1.0)/2.0) )*2.0/g_height);
+}
+
 void Martian(GLFWwindow *window, double x, double y) {
    /* sync meshes */
+   printf("%lf %lf\n",x,y);
+   printf("%f %f\n",g_width,g_height);
    endx = x;
    endy = g_height-y-1;
    float startwx = p2w_x(startx);
