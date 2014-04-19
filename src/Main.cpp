@@ -230,7 +230,7 @@ void InitGeom() {
 /* helper function to set up material for shading */
 void SetMaterial(int i) {
 
-   glUseProgram(ShadeProg);
+   glUseProgram(shader);
    switch (i) {
       case 0:  // redish (big tree)
         safe_glUniform3f(h_uMatAmb, 0.2,0.0,0.0);  
@@ -369,6 +369,7 @@ int InstallShader(const GLchar *vShaderName, const GLchar *fShaderName) {
 
 
 void drawObject(Object * obj, Object * parent, int index) {
+   glUseProgram(shader);
    Stack.pushMatrix();
    
    Stack.rotateWith(dirToMat(obj->direction));
@@ -388,9 +389,11 @@ void drawObject(Object * obj, Object * parent, int index) {
    safe_glVertexAttribPointer(h_aNormal, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
    // Finally draw it
+   //cout << "num triangles " << obj->base->triangleCount << endl;
    glDrawArrays(GL_TRIANGLES, 0, obj->base->triangleCount*3);
 
    Stack.popMatrix();
+   glUseProgram(0);
 }
 
 /* Main display function */
@@ -402,7 +405,7 @@ void Draw(void)
    glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
    //Start our shader   
-   glUseProgram(ShadeProg);
+   glUseProgram(shader);
 
    /* Set up the projection and view matrices */
    SetProjectionMatrix();
@@ -428,6 +431,7 @@ void Draw(void)
    //disable the shader
    glUseProgram(0);  
 
+
    txt->draw(score, bunnies.size(), shitty_fps);
 }
 
@@ -438,7 +442,7 @@ void Draw(void)
 // ======================================================================= //
 
 /* Reshape */
-void ReshapeGL (int width, int height)
+void ReshapeGL (GLFWwindow *window, int width, int height)
 {
    g_width = (float)width;
    g_height = (float)height;
@@ -517,7 +521,7 @@ void directCamera(int x, int y) {
       flashlight.position = eye + -W + U - V;
       flashlight.direction = glm::normalize(gaze);
       lightDirection = -W;
-   printf("gaze %f %f %f\n", gaze.x, gaze.y, gaze.z);
+   //printf("gaze %f %f %f\n", gaze.x, gaze.y, gaze.z);
    }
 
    g_startx = g_endx;
@@ -676,6 +680,22 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
    }
 }
 
+/*OpenGL Initialization code*/
+void Initialize() {
+   // Start Of User Initialization
+   glClearColor (0.1f, 0.1f, 0.1f, 1.0f);
+   // Black Background
+   glClearDepth (1.0f); // Depth Buffer Setup
+   glDepthFunc (GL_LEQUAL);   // The Type Of Depth Testing
+   glEnable (GL_DEPTH_TEST);// Enable Depth Testing
+       /* texture specific settings */
+    glEnable(GL_TEXTURE_2D);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+}
+
 static void cursor_pos_callback(GLFWwindow* window, double x, double y) {
    directCamera(x,y);
 }
@@ -684,9 +704,6 @@ int main(void)
 {
    GLFWwindow* window;
    glfwSetErrorCallback(error_callback);
-
-   // Initialization code-----
-   InitGeom();
    
    g_shadeType = PHONG;
    
@@ -698,10 +715,8 @@ int main(void)
    eye = vec3(0, 2.5, 0);
    target = eye + vec3(tx, ty, tz);
    lightPos = eye + vec3(tx, ty, tz);
-   
-   glClearColor(0.5, 0.5, 0, 1.0f);                       
-   glEnable(GL_DEPTH_TEST);   // Enable Depth Testing   GLFWwindow* window;
-      /* some matrix stack init */
+                        
+   /* some matrix stack init */
    Stack.useModelViewMatrix();
    Stack.loadIdentity();
    
@@ -720,7 +735,7 @@ int main(void)
      return -1;
    }
    glfwMakeContextCurrent(window);
-
+   Initialize();
    // Init the shader ---------
    getGLversion();
    if (!InstallShader(textFileRead((char *)"shaders/vert.glsl"), 
@@ -728,25 +743,26 @@ int main(void)
       printf("Error installing shader!\n");
       return 0;
    }
-   glUseProgram(shader);
+
    //--------------------------
    
    // window events -----------
+    // Initialization code-----
+   InitGeom();
    glfwSetKeyCallback(window, key_callback);
    glfwSetCursorPosCallback (window, cursor_pos_callback);
+   glfwSetFramebufferSizeCallback(window, ReshapeGL);
    // -------------------------
 
    // GLFW MAIN LOOP
    while (!glfwWindowShouldClose(window)) {
-        glClearColor(0.5, 0.5, 0, 1.0f);  
-        //tick();
+        tick();
         Draw();
         
-        //glEnd();
         glfwSwapBuffers(window);
         glfwPollEvents();
    }
-
+   glfwDestroyWindow(window);
    glfwTerminate();
    return 0;
 }
