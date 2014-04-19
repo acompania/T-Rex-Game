@@ -21,7 +21,7 @@ public:
 	void setText(char * text) { _text = text; }
 
 private:
-	unsigned int _sentence = 0;
+	unsigned int _sentence; // I removed = 0 RAYMOND
 	char *_text;
 
 	static bool _init;
