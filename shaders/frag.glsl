@@ -34,10 +34,7 @@ void main() {
 
       IL = normalize(vec3(vPosition) - uFlashlightPosition);
       intensity = pow(dot(IL, uFlashlightDirection), 3.0);
-      if (intensity < cos(1.35))
-         rColor = vec3(0);
-      else
-         rColor = intensity*(diffuse + specular + ambient);
+      rColor = diffuse + specular + ambient;
 
       gl_FragColor = vec4(rColor, 1.0);
    }

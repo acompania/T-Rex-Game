@@ -85,7 +85,7 @@ glm::vec3 sunShade = glm::vec3(1.0, 1.0, 0.9);
 int g_shadeType;
 
 float g_pitch, g_yaw;
-glm::vec3 eye, target, up = glm::vec3(0.0, 1.0, 0.0), lightDirection;
+glm::vec3 eye = glm::vec3(0.0, 0.0, 0.0), target = glm::vec3(0.0, 0.0, 0.0), up = glm::vec3(0.0, 1.0, 0.0), lightDirection;
 
 unsigned long lastTime, timePassed = 0, createBunnyCounter = 0;;
 
@@ -497,7 +497,7 @@ void directCamera(int x, int y) {
       g_starty = g_endy;
       return;
    }
-
+   
    float startWX = p2w_x(g_startx);
    float startWY = p2w_y(g_starty);
    float endWX = p2w_x(g_endx);
@@ -527,7 +527,7 @@ void directCamera(int x, int y) {
       flashlight.direction = glm::normalize(gaze);
       lightDirection = -W;
    }
-
+   printf("direction %f %f %f\n", eye.x, eye.y, eye.z);
    g_startx = g_endx;
    g_starty = g_endy;
 }
@@ -544,6 +544,7 @@ void passiveMove(int x, int y) {
 
 void moveForward() {
    glm::vec3 gaze = target - eye;
+   printf("gaze %f %f %f\n", eye.x, eye.y, eye.z);
    glm::vec3 W = normalize(gaze);
 
    eye += glm::vec3(.5*W.x, 0, .5*W.z);
@@ -626,7 +627,7 @@ void detectCollisions() {
    }
 }
 
-void tick(int stupid) {
+void tick() {
    unsigned long curTime = std::chrono::duration_cast<std::chrono::milliseconds>
         (std::chrono::system_clock::now().time_since_epoch()).count();
    
@@ -659,26 +660,33 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
    if (action == GLFW_PRESS) {
       printf("%d pressed\n", key);
       switch( key ) {
-         case 'w':
+         case GLFW_KEY_W:
             moveForward();
+            printf("moving forward\n");
             break;
-         case 's':
+         case GLFW_KEY_S:
             moveBackward();
             break;
-         case 'a':
+         case GLFW_KEY_A:
             strafeLeft();
             break;
-         case 'd':
+         case GLFW_KEY_D:
             strafeRight();
             break;
-         case 'n':
+         case GLFW_KEY_N:
             g_shadeType = g_shadeType == NORMAL ? PHONG : NORMAL;
+            printf("switched to shadeType %d\n", g_shadeType);
             break;
          case GLFW_KEY_ESCAPE:
             glfwSetWindowShouldClose(window, GL_TRUE);
             break;
       }
    }
+}
+
+static void cursor_pos_callback(GLFWwindow* window, double x, double y) {
+   directCamera(x,y);
+   printf("mouse moved to %f %f\n", x, y);
 }
 
 int main(void)
@@ -688,11 +696,26 @@ int main(void)
 
    // Initialization code-----
    InitGeom();
+   
+   g_shadeType = PHONG;
+   
+   g_pitch = 0;
+   g_yaw = M_PI / 2;
+   float tx = 0;
+   float ty = 0;
+   float tz = -1;
+   eye = vec3(0, 2.5, 0);
+   target = eye + vec3(tx, ty, tz);
+   lightPos = eye + vec3(tx, ty, tz);
+   
    glClearColor(0.5, 0.5, 0, 1.0f);                       
    glEnable(GL_DEPTH_TEST);   // Enable Depth Testing   GLFWwindow* window;
       /* some matrix stack init */
    Stack.useModelViewMatrix();
    Stack.loadIdentity();
+   
+   g_width = 620;
+   g_height = 480;
    // -------------------------
    
    /* Initialize the library */
@@ -700,7 +723,7 @@ int main(void)
      return -1;
 
    /* Create a windowed mode window and its OpenGL context */
-   window = glfwCreateWindow(640, 480, "T-Rex Gaiden", NULL, NULL);
+   window = glfwCreateWindow(g_width, g_height, "T-Rex Gaiden", NULL, NULL);
    if (!window) {
      glfwTerminate();
      return -1;
@@ -719,14 +742,15 @@ int main(void)
    
    // window events -----------
    glfwSetKeyCallback(window, key_callback);
+   glfwSetCursorPosCallback (window, cursor_pos_callback);
    // -------------------------
 
-   directCamera(3, 5);
    // GLFW MAIN LOOP
    while (!glfwWindowShouldClose(window)) {
-
+   
+        tick();
         Draw();
-
+        
         //glEnd();
         glfwSwapBuffers(window);
         glfwPollEvents();
